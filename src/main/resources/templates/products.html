@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог — Coffee Shop</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<h1>Каталог товаров</h1>
+
+<p>
+    Пользователь:
+    <span th:text="${username}"></span>
+</p>
+
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Выйти</button>
+</form>
+
+<table border="1px">
+    <thead>
+    <tr>
+        <th>Фото</th>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Цена</th>
+        <th>Скидка</th>
+        <th>Цена со скидкой</th>
+        <th>Доступен</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    <thead>
+    <tr th:each="product, state : ${products}"
+        th:style="${state.odd} ? 'background-color: #f9ffff;' : 'background-color: #f9f9ff;'">
+        <td>
+            <img th:src="@{/products/{id}/image(id=${product.id})}"
+                 th:alt="${product.name}"
+                 width="100">
+        </td>
+        <td th:text="${product.id}"></td>
+        <td th:text="${product.name}"></td>
+        <td th:text="${product.price / 100.0}"></td>
+        <td th:text="${product.discount + '%'}"></td>
+        <td th:text="${product.priceWithDiscount / 100.0}"></td>
+        <td th:text="${product.active ? 'Да' : 'Нет'}"></td>
+
+    </tr>
+    </thead>
+</table>
+</body>
+</html>

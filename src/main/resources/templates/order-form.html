@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Создание заказа</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body >
+
+<h1>Создание заказа</h1>
+
+<p>
+    Пользователь:
+    <span th:text="${session.username}"></span><br>
+    <span style="
+        background-color: #2d3139;
+        color: #f8f8f2;
+        font-family: 'Courier New', Courier, monospace;
+        font-style: normal;
+        font-size: 14px;
+    " th:text="${session.roleName}"></span>
+</p>
+
+
+<h1>Создание заказа</h1>
+
+<div>
+    <label for="category">Категория:</label>
+    <select id="category">
+        <option value="">Все категории</option>
+        <option th:each="category : ${categories}"
+                th:value="${category.id}"
+                th:text="${category.name}">
+        </option>
+    </select>
+</div>
+
+<div class="product-catalog">
+    <div th:each="product : ${products}"
+         th:if="${product.active}"
+         class="product-card"
+         th:attr="data-category-id=${product.categoryId},
+              data-product-id=${product.id},
+              data-product-name=${product.name},
+              data-price=${product.price},
+              data-discounted-price=${product.priceWithDiscount}">
+
+        <img th:src="@{/products/{id}/image(id=${product.id})}"
+             th:alt="${product.name}"
+             width="120">
+
+        <h3 th:text="${product.name}">Название товара</h3>
+
+        <div>
+            <span th:if="${product.discount > 0}"
+                  th:text="${#numbers.formatDecimal(product.price / 100.0, 1, 2)} + ' ₽'"
+                  style="text-decoration: line-through;">
+            </span>
+
+            <span th:text="${#numbers.formatDecimal(product.priceWithDiscount / 100.0, 1, 2)} + ' ₽'">
+            </span>
+
+            <span th:if="${product.discount > 0}"
+                  th:text="${'-' + product.discount + '%'}">
+            </span>
+        </div>
+
+    </div>
+</div>
+
+<div class="basket">
+    <h2>Корзина</h2>
+    <ul id="basket-items"></ul>
+    <hr>
+    <div> Позиций: <span id="basket-positions">0</span> </div>
+    <div> Всего товаров: <span id="basket-quantity">0</span> </div>
+    <div> Сумма без скидки: <span id="basket-total-before">0,00 ₽</span>  </div>
+    <div> Скидка: <span id="basket-discount">0,00 ₽</span> </div>
+    <hr>
+    <h3> К оплате: <span id="basket-total">0,00 ₽</span> </h3>
+    <button id="create-order" type="button" disabled>
+        Оформить заказ
+    </button>
+
+    <button id="clear-basket" type="button" >
+        Очистить корзину
+    </button>
+</div>
+
+
+<p>
+    <a th:href="@{/orders}">Вернуться к заказам</a>
+</p>
+
+<p>
+    <a th:href="@{/products}">Вернуться к каталогу</a>
+</p>
+
+<dialog id="confirmation-dialog">
+    <h2>Подтверждение заказа</h2>
+    <div id="confirmation-items"></div>
+    <hr>
+    <p>
+        Позиций: <span id="confirmation-positions"></span>
+    </p>
+    <p>
+        Сумма без скидки:
+        <span id="confirmation-before"></span>
+    </p>
+    <p>
+        Скидка:
+        <span id="confirmation-discount"></span>
+    </p>
+    <h3>
+        К оплате:
+        <span id="confirmation-total"></span>
+    </h3>
+    <button id="confirm-order" type="button">
+        Подтвердить
+    </button>
+    <button id="cancel-confirmation" type="button">
+        Вернуться к корзине
+    </button>
+</dialog>
+
+<script th:src="@{/js/order-form.js}"></script>
+</body>
+</html>

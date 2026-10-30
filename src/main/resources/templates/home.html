@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Shop</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<h1>Кофейня Coffee Shop</h1>
+<p th:text="${message}">Сообщение клиенту</p>
+<a href="login">login</a><br>
+<a href="home">home</a><br>
+<a href="products">Продукты</a><br>
+<a href="orders">Заказы</a><br>
+<a href="orders/new">New</a>
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Заказы кофейни</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<h1>Заказы кофейни</h1>
+
+<p>
+    Пользователь:
+    <span th:text="${username}"></span>
+</p>
+
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Выйти</button>
+</form>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Номер заказа</th>
+        <th>Сумма со скидкой</th>
+        <th>Статус</th>
+        <th>Время обработки</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="order : ${orders}">
+        <td>
+            <a th:href="@{/orders/{id}(id=${order.id})}"
+               th:text="${order.id}"></a>
+        </td>
+
+        <td th:text="${#numbers.formatDecimal(order.totalWithDiscount / 100.0, 1, 2) + ' руб.'}"></td>
+
+        <td th:text="${order.status}"></td>
+
+        <td>
+            <span th:text="${order.elapsedSeconds / 3600}"></span> ч.
+            <span th:text="${(order.elapsedSeconds % 3600) / 60}"></span> мин.
+            <span th:text="${order.elapsedSeconds % 60}"></span> сек.
+        </td>
+    </tr>
+
+    <tr th:if="${#lists.isEmpty(orders)}">
+        <td colspan="4">Заказов нет</td>
+    </tr>
+    </tbody>
+</table>
+
+<p>
+    <a th:href="@{/products}">Вернуться к каталогу</a><br>
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Выйти</button>
+</form>
+</p>
+
+</body>
+</html>

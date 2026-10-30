@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ — Coffee Shop</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- Верхняя секция -->
+<section>
+    <h1>Заказ №<span th:text="${order.id}"></span></h1>
+    <p>
+        Статус:
+        <span th:text="${order.status}"></span>
+    </p>
+</section>
+
+<hr>
+
+<!-- Средняя секция -->
+<section>
+    <h2>Состав заказа</h2>
+
+    <table border="1">
+        <thead>
+        <tr>
+            <th>№</th>
+            <th>Изображение</th>
+            <th>Название</th>
+            <th>Цена без скидки</th>
+            <th>Цена со скидкой</th>
+            <th>Количество</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="item, stat : ${order.items}">
+            <td th:text="${stat.count}"></td>
+            <td>
+                <img th:src="@{/products/{id}/image(id=${item.productId})}"
+                     th:alt="${item.name}"
+                     width="80">
+            </td>
+            <td th:text="${item.name}"></td>
+            <td th:text="${#numbers.formatDecimal(item.cost / 100.0, 1, 2) + ' руб.'}"></td>
+            <td th:text="${#numbers.formatDecimal(item.discountedPrice() / 100.0, 1, 2) + ' руб.'}"></td>
+            <td th:text="${item.quantity}"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<hr>
+
+<!-- Нижняя секция -->
+<section>
+    <h2>Итого</h2>
+    <p>
+        Без скидки:
+        <strong th:text="${#numbers.formatDecimal(totalWithoutDiscount / 100.0, 1, 2) + ' руб.'}"></strong>
+    </p>
+    <p>
+        С учётом скидок:
+        <strong th:text="${#numbers.formatDecimal(totalWithDiscount / 100.0, 1, 2) + ' руб.'}"></strong>
+    </p>
+</section>
+
+<p><a th:href="@{/products}">Вернуться в каталог</a></p><br>
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Выйти</button>
+</form>
+</body>
+</html>
