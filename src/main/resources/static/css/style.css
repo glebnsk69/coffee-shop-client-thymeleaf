@@ -83,3 +83,28 @@ a:hover {
     padding: 16px;
     background: white;
 }
+.basket-summary {
+    flex-shrink: 0;
+}
+
+.basket-items-container {
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.quantity-control input {
+    width: 3.5em;
+    padding: 4px 2px;
+    text-align: center;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+
+.quantity-control button {
+    padding: 4px 7px;
+}

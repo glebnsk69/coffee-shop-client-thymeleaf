@@ -161,54 +161,90 @@ document.getElementById('confirm-order').addEventListener('click', async () => {
         let totalWithDiscount = 0;
 
         basket.forEach((product, productId) => {
-            const item = document.createElement('li');
+            const item = document.createElement('tr');
 
+            // Название товара
+            const nameCell = document.createElement('td');
             const name = document.createElement('span');
+            name.className = 'basket-product-name';
             name.textContent = product.name;
+            nameCell.appendChild(name);
+
+            // Управление количеством
+            const quantityCell = document.createElement('td');
+
+            const quantityControl = document.createElement('div');
+            quantityControl.className = 'quantity-control';
 
             const decreaseButton = document.createElement('button');
+            decreaseButton.type = 'button';
             decreaseButton.textContent = '−';
+
+            const quantity = document.createElement('input');
+            quantity.type = 'number';
+            quantity.min = '1';
+            quantity.step = '1';
+            quantity.value = product.quantity;
+
+            const increaseButton = document.createElement('button');
+            increaseButton.type = 'button';
+            increaseButton.textContent = '+';
+
             decreaseButton.addEventListener('click', () => {
                 if (product.quantity > 1) {
                     product.quantity--;
-                } else {
-                    basket.delete(productId);
+                    renderBasket();
                 }
-
-                renderBasket();
             });
 
-            const quantity = document.createElement('span');
-            quantity.textContent = ` ${product.quantity} `;
-
-            const increaseButton = document.createElement('button');
-            increaseButton.textContent = '+';
             increaseButton.addEventListener('click', () => {
                 product.quantity++;
                 renderBasket();
             });
 
-const removeButton = document.createElement('button');
-removeButton.textContent = 'Удалить';
+            quantity.addEventListener('change', () => {
+                const newQuantity = Number(quantity.value);
 
-removeButton.addEventListener('click', () => {
-    basket.delete(productId);
-    renderBasket();
-});
+                if (!Number.isInteger(newQuantity) || newQuantity < 1) {
+                    quantity.value = product.quantity;
+                    return;
+                }
 
-            const lineTotal = document.createElement('span');
-            lineTotal.textContent =
-                ` — ${formatMoney(product.discountedPrice * product.quantity)}`;
+                product.quantity = newQuantity;
+                renderBasket();
+            });
 
+            quantityControl.append(decreaseButton, quantity, increaseButton);
+            quantityCell.appendChild(quantityControl);
+
+            // Сумма позиции
+            const lineTotalCell = document.createElement('td');
+            lineTotalCell.className = 'basket-line-total';
+            lineTotalCell.textContent =
+                formatMoney(product.discountedPrice * product.quantity);
+
+            // Удаление позиции
+            const removeCell = document.createElement('td');
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.textContent = '🗑';
+            removeButton.title = 'Удалить товар';
+
+            removeButton.addEventListener('click', () => {
+                basket.delete(productId);
+                renderBasket();
+            });
+
+            removeCell.appendChild(removeButton);
+
+            // Добавление ячеек в строку
             item.append(
-                name,
-                decreaseButton,
-                quantity,
-                increaseButton,
-                lineTotal,
-                removeButton
+                nameCell,
+                quantityCell,
+                lineTotalCell,
+                removeCell
             );
-
             basketItems.appendChild(item);
 
             // Расчёт итогов
