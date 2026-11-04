@@ -17,7 +17,13 @@ public class ProductImageController {
         this.productApiClient = productApiClient;
     }
 
+
     @GetMapping("/products/{id}/image")
+    public ResponseEntity<byte[]> getProductImage(@PathVariable Long id) {
+        return productApiClient.getProductImage(id, null);
+    }
+
+    /*@GetMapping("/products/{id}/image")
     public ResponseEntity<byte[]> getProductImage(
             @PathVariable Long id,
             HttpSession session) {
@@ -30,4 +36,6 @@ public class ProductImageController {
 
         return productApiClient.getProductImage(id, token);
     }
+
+     */
 }

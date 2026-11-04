@@ -2,62 +2,155 @@
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Заказы кофейни</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body>
 
-<h1>Заказы кофейни</h1>
+<body class="app-page">
+<header class="app-header">
+    <div class="header-brand">
+        <a th:href="@{/orders}" class="header-logo">
+            <img th:src="@{/img/9385907-1.jpg}" alt="CoffeeShop">
+        </a>
 
-<p>
-    Пользователь:
-    <span th:text="${username}"></span>
-</p>
+        <div class="header-divider"></div>
 
-<form th:action="@{/logout}" method="post">
-    <button type="submit">Выйти</button>
-</form>
+        <h1>
+            <a th:href="@{/orders}">CoffeeShop №1</a>
+        </h1>
+    </div>
 
-<table border="1">
-    <thead>
-    <tr>
-        <th>Номер заказа</th>
-        <th>Сумма со скидкой</th>
-        <th>Статус</th>
-        <th>Время обработки</th>
-    </tr>
-    </thead>
+    <!-- Анонимный пользователь -->
+    <form th:if="${session.accessToken == null}"
+          class="login-form"
+          th:action="@{/login}"
+          method="post">
 
-    <tbody>
-    <tr th:each="order : ${orders}">
-        <td>
-            <a th:href="@{/orders/{id}(id=${order.id})}"
-               th:text="${order.id}"></a>
-        </td>
+        <input type="text"
+               name="username"
+               placeholder="Логин"
+               autocomplete="username"
+               required>
 
-        <td th:text="${#numbers.formatDecimal(order.totalWithDiscount / 100.0, 1, 2) + ' руб.'}"></td>
+        <input type="password"
+               name="password"
+               placeholder="Пароль"
+               autocomplete="current-password"
+               required>
+        <button type="submit" class="login-submit" aria-label="Войти"></button>
+    </form>
 
-        <td th:text="${order.status}"></td>
+    <!-- Авторизованный пользователь -->
+    <div th:if="${session.accessToken != null}"
+         class="header-user">
 
-        <td>
-            <span th:text="${order.elapsedSeconds / 3600}"></span> ч.
-            <span th:text="${(order.elapsedSeconds % 3600) / 60}"></span> мин.
-            <span th:text="${order.elapsedSeconds % 60}"></span> сек.
-        </td>
-    </tr>
+        <a class="header-action"
+           th:href="@{/orders/new}">
+            Создать заказ
+        </a>
 
-    <tr th:if="${#lists.isEmpty(orders)}">
-        <td colspan="4">Заказов нет</td>
-    </tr>
-    </tbody>
-</table>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="header-action">
+                Выйти
+            </button>
+        </form>
+    </div>
+</header>
 
-<p>
-    <a th:href="@{/products}">Вернуться к каталогу</a><br>
-<form th:action="@{/logout}" method="post">
-    <button type="submit">Выйти</button>
-</form>
-</p>
 
+<main class="app-content">
+
+    <section class="orders-panel">
+
+        <div class="orders-heading">
+            <h2>
+                <span class="orders-heading-icon">☕</span>
+                Заказы
+            </h2>
+            <div class="orders-heading-actions"
+                 th:if="${session.accessToken != null}">
+
+                <a class="header-action"
+                   th:href="@{/orders/new}">
+                    Создать заказ
+                </a>
+
+                <div class="order-filter">
+                    <label>
+                        <input type="checkbox" id="show-inactive-orders">
+                        Показать скрытые
+                    </label>
+                </div>
+
+            </div>
+
+
+        </div>
+
+     <!--   <div class="order-filter" th:if="${session.accessToken != null}">
+            <label>
+                <input type="checkbox" id="show-inactive-orders1">
+                Показывать завершённые, отменённые и ошибочные
+            </label>
+        </div>
+        -->
+        <div class="orders-table-container">
+        <table class="orders-table">
+            <thead>
+            <tr>
+                <th>Номер заказа</th>
+                <th>Сумма со скидкой</th>
+                <th>Статус</th>
+                <th>Время обработки</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="order : ${orders}"
+                th:attr="data-status=${order.status}">
+                <td>
+                    <a th:href="@{/orders/{id}(id=${order.id})}"
+                       th:text="${order.id}"></a>
+                </td>
+
+                <td th:text="${#numbers.formatDecimal(order.totalWithDiscount / 100.0, 1, 2) + ' руб.'}"></td>
+
+                <td>
+    <span class="order-status"
+          th:classappend="' status-' + ${order.status}"
+          th:text="${order.status}">
+    </span>
+                </td>
+
+                <td>
+                    <span th:text="${order.elapsedSeconds / 3600}"></span> ч.
+                    <span th:text="${(order.elapsedSeconds % 3600) / 60}"></span> мин.
+                    <span th:text="${order.elapsedSeconds % 60}"></span> сек.
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(orders)}">
+                <td colspan="4">Заказов нет</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+    </section>
+
+</main>
+
+<footer class="app-footer">
+    <div class="footer-date" id="footer-date"></div>
+
+    <div th:if="${session.accessToken != null}"
+         class="footer-user">
+        <span th:text="${session.username}"></span>
+        <span th:text="${session.roleName}"></span>
+    </div>
+
+</footer>
+
+<script th:src="@{/js/orders.js}"></script>
 </body>
 </html>

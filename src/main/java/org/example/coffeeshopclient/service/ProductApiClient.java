@@ -31,8 +31,28 @@ public class ProductApiClient {
                 .retrieve()
                 .body(String.class);
     }
-
     public ResponseEntity<byte[]> getProductImage(Long id, String token) {
+        return backendRestClient.get()
+                .uri("/api/products/{id}/image", id)
+                .headers(headers -> {
+                    if (token != null) {
+                        headers.setBearerAuth(token);
+                    }
+                })
+                .exchange((request, response) -> {
+                    byte[] image = response.getBody().readAllBytes();
+                    MediaType contentType = response.getHeaders().getContentType();
+
+                    return ResponseEntity
+                            .status(response.getStatusCode())
+                            .contentType(contentType != null
+                                    ? contentType
+                                    : MediaType.APPLICATION_OCTET_STREAM)
+                            .body(image);
+                });
+    }
+
+ /*   public ResponseEntity<byte[]> getProductImage(Long id, String token) {
         return backendRestClient.get()
                 .uri("/api/products/{id}/image", id)
                 .header("Authorization", "Bearer " + token)
@@ -48,5 +68,5 @@ public class ProductApiClient {
                             .body(image);
                 });
     }
-
+*/
 }

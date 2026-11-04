@@ -8,54 +8,108 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-
+<div class="app-page">
 <!-- Верхняя секция -->
-<section>
-    <h1>Заказ №<span th:text="${order.id}"></span></h1>
-    <p>
-        Статус:
-        <span th:text="${order.status}"></span>
-    </p>
-</section>
 
+<header class="app-header">
+
+    <div class="header-brand">
+
+        <a class="header-logo" th:href="@{/orders}">
+            <img src="/img/9385907-1.jpg" alt="CoffeeShop">
+        </a>
+
+        <div class="header-divider"></div>
+
+        <h1>
+            Заказ №<span th:text="${order.id}"></span>
+        </h1>
+
+    </div>
+
+    <div class="order-header-summary">
+
+        <div class="order-header-status">
+            <span class="order-header-label">Статус заказа</span>
+
+            <!-- Если переходы доступны — показываем раскрывающийся список -->
+            <details th:if="${not #lists.isEmpty(availableStatuses)}"
+                     class="status-dropdown">
+
+                <summary>
+                    <strong th:text="${order.statusName}"></strong>
+                </summary>
+
+                <div class="status-dropdown-menu">
+                    <form th:each="status : ${availableStatuses}"
+                          th:action="@{/orders/{id}/status(id=${order.id})}"
+                          method="post">
+
+                        <button type="submit"
+                                name="status"
+                                th:value="${status.value}"
+                                th:text="${status.displayName}">
+                        </button>
+
+                    </form>
+                </div>
+            </details>
+
+            <!-- Если переходов нет — просто отображаем статус -->
+            <strong th:if="${#lists.isEmpty(availableStatuses)}"
+                    th:text="${order.statusName}">
+            </strong>
+        </div>
+
+        <div class="order-header-total">
+            <span class="order-header-label">Итого со скидкой</span>
+            <strong th:text="${#numbers.formatDecimal(totalWithDiscount / 100.0, 1, 2) + ' руб.'}"></strong>
+        </div>
+
+    </div>
+
+</header>
 <hr>
-
+    <main class="app-content">
 <!-- Средняя секция -->
-<section>
+<section class="orders-panel">
     <h2>Состав заказа</h2>
 
-    <table border="1">
-        <thead>
-        <tr>
-            <th>№</th>
-            <th>Изображение</th>
-            <th>Название</th>
-            <th>Цена без скидки</th>
-            <th>Цена со скидкой</th>
-            <th>Количество</th>
-        </tr>
-        </thead>
+    <div class="orders-table-container">
+        <table class="orders-table">
+            <thead>
+            <tr>
+                <th>№</th>
+                <th>Изображение</th>
+                <th>Название</th>
+                <th>Цена без скидки</th>
+                <th>Цена со скидкой</th>
+                <th>Количество</th>
+            </tr>
+            </thead>
 
-        <tbody>
-        <tr th:each="item, stat : ${order.items}">
-            <td th:text="${stat.count}"></td>
-            <td>
-                <img th:src="@{/products/{id}/image(id=${item.productId})}"
-                     th:alt="${item.name}"
-                     width="80">
-            </td>
-            <td th:text="${item.name}"></td>
-            <td th:text="${#numbers.formatDecimal(item.cost / 100.0, 1, 2) + ' руб.'}"></td>
-            <td th:text="${#numbers.formatDecimal(item.discountedPrice() / 100.0, 1, 2) + ' руб.'}"></td>
-            <td th:text="${item.quantity}"></td>
-        </tr>
-        </tbody>
-    </table>
+            <tbody>
+            <tr th:each="item, stat : ${order.items}">
+                <td th:text="${stat.count}"></td>
+                <td>
+                    <img th:src="@{/products/{id}/image(id=${item.productId})}"
+                         th:alt="${item.name}"
+                         width="80">
+                </td>
+                <td th:text="${item.name}"></td>
+                <td th:text="${#numbers.formatDecimal(item.cost / 100.0, 1, 2) + ' руб.'}"></td>
+                <td th:text="${#numbers.formatDecimal(item.discountedPrice() / 100.0, 1, 2) + ' руб.'}"></td>
+                <td th:text="${item.quantity}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </section>
 
 <hr>
-
+    </main>
 <!-- Нижняя секция -->
+    <!--
 <section>
     <h2>Итого</h2>
     <p>
@@ -67,10 +121,17 @@
         <strong th:text="${#numbers.formatDecimal(totalWithDiscount / 100.0, 1, 2) + ' руб.'}"></strong>
     </p>
 </section>
-
-<p><a th:href="@{/products}">Вернуться в каталог</a></p><br>
-<form th:action="@{/logout}" method="post">
-    <button type="submit">Выйти</button>
-</form>
+-->
+    <footer class="app-footer">
+        <div class="footer-date" id="footer-date"></div>
+        <div class="footer-user"
+             th:if="${session.accessToken != null}">
+            <span th:text="${session.username}"></span>
+            <span class="footer-user-role"
+                  th:text="${session.roleName}"></span>
+        </div>
+    </footer>
+</div>
+<script th:src="@{/js/orders.js}"></script>
 </body>
 </html>

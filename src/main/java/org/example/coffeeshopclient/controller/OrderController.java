@@ -2,10 +2,7 @@
 package org.example.coffeeshopclient.controller;
 
 import jakarta.servlet.http.HttpSession;
-import org.example.coffeeshopclient.dto.CreateOrderRequest;
-import org.example.coffeeshopclient.dto.OrderListItem;
-import org.example.coffeeshopclient.dto.OrderResponse;
-import org.example.coffeeshopclient.dto.OrderSummaryResponse;
+import org.example.coffeeshopclient.dto.*;
 import org.example.coffeeshopclient.service.CategoryApiClient;
 import org.example.coffeeshopclient.service.OrderApiClient;
 import org.example.coffeeshopclient.service.ProductApiClient;
@@ -56,12 +53,16 @@ public class OrderController {
             Model model) {
 
         String token = (String) session.getAttribute("accessToken");
-
+/*
         if (token == null) {
             return "redirect:/login";
         }
 
         var order = orderApiClient.getOrder(id, token);
+*/
+        var order = token == null
+                ? orderApiClient.getOrder(id)
+                : orderApiClient.getOrder(id, token);
 
         long totalWithoutDiscount = order.items().stream()
                 .mapToLong(item -> (long) item.cost() * item.quantity())
@@ -70,6 +71,14 @@ public class OrderController {
                 .mapToLong(item ->
                         item.discountedPrice() * item.quantity())
                 .sum();
+        /*
+        List<OrderStatusOption> availableStatuses =
+        token == null
+                ? List.of()
+                : orderApiClient.getAvailableStatuses(id, token);
+        model.addAttribute("availableStatuses", availableStatuses);
+
+         */
 /*
         long totalWithDiscount = order.items().stream()
                 .mapToLong(item -> {
@@ -92,13 +101,13 @@ public class OrderController {
         model.addAttribute("item_name", order);
         model.addAttribute("totalWithoutDiscount", totalWithoutDiscount);
         model.addAttribute("totalWithDiscount", totalWithDiscount);
+        model.addAttribute("role", session.getAttribute("role"));
+//        model.addAttribute("roleName", session.getAttribute("roleName"));
 
         System.out.println("_".repeat(80));
         System.out.println("Total without discount: " + model.getAttribute("totalWithoutDiscount"));
         System.out.println("Total with discount: " + model.getAttribute("totalWithDiscount"));
         System.out.println("_".repeat(80));
-
-
         return "order";
     }
     private long calculateElapsedSeconds(OrderSummaryResponse order) {
@@ -122,13 +131,16 @@ public class OrderController {
             String token
     ) {
         return orders.stream()
-                .filter(order -> !order.deleted())
-                .filter(order -> List.of(
-                        "OPEN", "INPROGRESS", "COMPLETED"
-                ).contains(order.status()))
+                // Видимость заказов определяется backend.
+//                .filter(order -> !order.deleted())
+//                .filter(order -> List.of(
+//                        "OPEN", "INPROGRESS", "COMPLETED"
+//                ).contains(order.status()))
                 .map(order -> {
-                    OrderResponse details =
-                            orderApiClient.getOrder(order.id(), token);
+//                    OrderResponse details = orderApiClient.getOrder(order.id(), token);
+                    OrderResponse details = token == null
+                            ? orderApiClient.getOrder(order.id())
+                            : orderApiClient.getOrder(order.id(), token);
 
                     long total = details.items().stream()
                             .mapToLong(item ->
@@ -149,17 +161,19 @@ public class OrderController {
     public String getOrders(HttpSession session, Model model) {
         String token = (String) session.getAttribute("accessToken");
 
-        if (token == null) {
-            return "redirect:/login";
-        }
+        List<OrderSummaryResponse> orders = token == null
+                ? orderApiClient.getOrders()
+                : orderApiClient.getOrders(token);
 
-        List<OrderSummaryResponse> orders = orderApiClient.getOrders(token);
+        List<OrderListItem> orderList = buildOrderList(orders, token);
 
-        model.addAttribute("orders", buildOrderList(orders, token));
+        model.addAttribute("orders", orderList);
         model.addAttribute("username", session.getAttribute("username"));
 
         return "orders";
     }
+
+
     @GetMapping("/new")
     public String newOrder(
             HttpSession session,
@@ -175,6 +189,27 @@ public class OrderController {
         System.out.println("Products: " + model.getAttribute("products"));
         System.out.println("Categories: " + model.getAttribute("categories"));
         return "order-form";
+    }
+
+    @PostMapping("/{id}/status")
+    public String changeOrderStatus(
+            @PathVariable Long id,
+            @RequestParam String status,
+            HttpSession session) {
+
+        String token = (String) session.getAttribute("accessToken");
+
+        if (token == null) {
+            return "redirect:/login";
+        }
+
+        orderApiClient.changeOrderStatus(
+                id,
+                token,
+                new ChangeOrderStatusRequest(status)
+        );
+
+        return "redirect:/orders/" + id;
     }
 
 }
