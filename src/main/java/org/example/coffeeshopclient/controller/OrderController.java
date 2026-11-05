@@ -150,6 +150,7 @@ public class OrderController {
                     return new OrderListItem(
                             order.id(),
                             order.status(),
+                            order.statusName(),
                             total,
                             calculateElapsedSeconds(order)
                     );
