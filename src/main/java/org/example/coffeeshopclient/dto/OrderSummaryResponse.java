@@ -8,6 +8,7 @@ public record OrderSummaryResponse(
         String status,
         String statusName,
         LocalDateTime createdAt,
+        Long totalCost,
         Long durationSeconds
 ) {
 }

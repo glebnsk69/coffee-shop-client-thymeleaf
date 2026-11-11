@@ -38,14 +38,18 @@ public class AuthController {
             session.setAttribute("accessToken", response.token());
             session.setAttribute("username", username);
 
-            System.out.println("username:"+username+" Token:"+response.token());
-            System.out.println("Login session ID: " + session.getId());
-            System.out.println("Token saved: " +
-                    (session.getAttribute("accessToken") != null));
-            System.out.println("_".repeat(80)+"\nLogin response is null: " + (response == null));
-            System.out.println("Token is null: " +
-                    (response == null || response.token() == null));
+            System.out.println("_".repeat(80));
+            System.out.println("username:"+username+"\nToken:"+response.token());
             System.out.println(JwtUtils.getRole(response.token()));
+            System.out.println("_".repeat(80));
+
+//            System.out.println("Login session ID: " + session.getId());
+//            System.out.println("Token saved: " +
+//                    (session.getAttribute("accessToken") != null));
+//            System.out.println("_".repeat(80)+"\nLogin response is null: " + (response == null));
+//            System.out.println("Token is null: " +
+//                    (response == null || response.token() == null));
+
             session.setAttribute("roleName", JwtUtils.getRole(response.token()));
             return "redirect:/";
         } catch (RestClientResponseException e) {

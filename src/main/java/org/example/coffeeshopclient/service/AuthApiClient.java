@@ -23,7 +23,7 @@ public class AuthApiClient {
                 .retrieve()
                 .body(String.class);
 
-        System.out.println("Login JSON: " + json);
+//        System.out.println("Login JSON: " + json);
 
         return backendRestClient.post()
                 .uri("/api/auth/login")

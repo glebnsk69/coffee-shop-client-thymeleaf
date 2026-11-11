@@ -104,10 +104,12 @@ public class OrderController {
         model.addAttribute("role", session.getAttribute("role"));
 //        model.addAttribute("roleName", session.getAttribute("roleName"));
 
-        System.out.println("_".repeat(80));
+/*        System.out.println("_".repeat(80));
         System.out.println("Total without discount: " + model.getAttribute("totalWithoutDiscount"));
         System.out.println("Total with discount: " + model.getAttribute("totalWithDiscount"));
         System.out.println("_".repeat(80));
+
+ */
         return "order";
     }
     private long calculateElapsedSeconds(OrderSummaryResponse order) {
@@ -127,34 +129,17 @@ public class OrderController {
     }
 
     private List<OrderListItem> buildOrderList(
-            List<OrderSummaryResponse> orders,
-            String token
+            List<OrderSummaryResponse> orders
+
     ) {
         return orders.stream()
-                // Видимость заказов определяется backend.
-//                .filter(order -> !order.deleted())
-//                .filter(order -> List.of(
-//                        "OPEN", "INPROGRESS", "COMPLETED"
-//                ).contains(order.status()))
-                .map(order -> {
-//                    OrderResponse details = orderApiClient.getOrder(order.id(), token);
-                    OrderResponse details = token == null
-                            ? orderApiClient.getOrder(order.id())
-                            : orderApiClient.getOrder(order.id(), token);
-
-                    long total = details.items().stream()
-                            .mapToLong(item ->
-                                    item.discountedPrice() * item.quantity())
-                            .sum();
-
-                    return new OrderListItem(
-                            order.id(),
-                            order.status(),
-                            order.statusName(),
-                            total,
-                            calculateElapsedSeconds(order)
-                    );
-                })
+                .map(order -> new OrderListItem(
+                        order.id(),
+                        order.status(),
+                        order.statusName(),
+                        order.totalCost(),
+                        calculateElapsedSeconds(order)
+                ))
                 .toList();
     }
 
@@ -166,12 +151,24 @@ public class OrderController {
                 ? orderApiClient.getOrders()
                 : orderApiClient.getOrders(token);
 
-        List<OrderListItem> orderList = buildOrderList(orders, token);
+        List<OrderListItem> orderList = buildOrderList(orders);
 
         model.addAttribute("orders", orderList);
         model.addAttribute("username", session.getAttribute("username"));
 
         return "orders";
+    }
+
+    @GetMapping("/data")
+    @ResponseBody
+    public List<OrderListItem> getOrdersData(HttpSession session) {
+        String token = (String) session.getAttribute("accessToken");
+
+        List<OrderSummaryResponse> orders = token == null
+                ? orderApiClient.getOrders()
+                : orderApiClient.getOrders(token);
+
+        return buildOrderList(orders);
     }
 
 
@@ -210,7 +207,8 @@ public class OrderController {
                 new ChangeOrderStatusRequest(status)
         );
 
-        return "redirect:/orders/" + id;
+//        return "redirect:/orders/" + id;
+        return "redirect:/orders";
     }
 
 }

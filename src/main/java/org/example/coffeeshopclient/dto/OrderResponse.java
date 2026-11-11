@@ -9,6 +9,7 @@ public record OrderResponse(
         String statusName,
         String createdAt,
         Long durationSeconds,
-        List<OrderItemResponse> items
+        List<OrderItemResponse> items,
+        List<String> allowedActions
 ) {
 }

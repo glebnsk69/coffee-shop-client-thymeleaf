@@ -30,35 +30,33 @@
     <div class="order-header-summary">
 
         <div class="order-header-status">
+
             <span class="order-header-label">Статус заказа</span>
 
-            <!-- Если переходы доступны — показываем раскрывающийся список -->
-            <details th:if="${not #lists.isEmpty(availableStatuses)}"
-                     class="status-dropdown">
-
-                <summary>
-                    <strong th:text="${order.statusName}"></strong>
-                </summary>
-
-                <div class="status-dropdown-menu">
-                    <form th:each="status : ${availableStatuses}"
-                          th:action="@{/orders/{id}/status(id=${order.id})}"
-                          method="post">
-
-                        <button type="submit"
-                                name="status"
-                                th:value="${status.value}"
-                                th:text="${status.displayName}">
-                        </button>
-
-                    </form>
+            <div class="status-dropdown"
+                 th:attr="data-order-id=${order.id},
+              data-allowed-actions=${#strings.listJoin(order.allowedActions, ',')}">
+<!--
+                <button type="button"
+                        class="order-status-trigger"
+                        id="order-status-trigger"
+                        th:text="${order.statusName}">
+                </button>
+-->
+                <button type="button"
+                        class="order-status order-status-trigger"
+                        th:classappend="'status-' + ${order.status}"
+                        id="order-status-trigger"
+                        th:text="${order.statusName}">
+                </button>
+                <div class="status-dropdown-menu"
+                     id="status-dropdown-menu"
+                     hidden>
                 </div>
-            </details>
 
-            <!-- Если переходов нет — просто отображаем статус -->
-            <strong th:if="${#lists.isEmpty(availableStatuses)}"
-                    th:text="${order.statusName}">
-            </strong>
+
+            </div>
+
         </div>
 
         <div class="order-header-total">
@@ -132,6 +130,6 @@
         </div>
     </footer>
 </div>
-<script th:src="@{/js/orders.js}"></script>
+<script th:src="@{/js/order.js}"></script>
 </body>
 </html>
